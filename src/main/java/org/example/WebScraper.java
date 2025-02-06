@@ -4,7 +4,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -15,14 +14,29 @@ public class WebScraper {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Enter the number of URLs to scrape: ");
-        int urlCount = scanner.nextInt();
-        scanner.nextLine();
+        System.out.print("Do you want to enter URLs manually? (yes/no): ");
+        boolean manualEntry = scanner.nextLine().trim().equalsIgnoreCase("yes");
 
         List<String> urls = new ArrayList<>();
-        for (int i = 0; i < urlCount; i++) {
-            System.out.print("Enter URL " + (i + 1) + ": ");
-            urls.add(scanner.nextLine().trim());
+
+        if (manualEntry) {
+            System.out.print("Enter the number of URLs: ");
+            int urlCount = scanner.nextInt();
+            scanner.nextLine();
+
+            for (int i = 0; i < urlCount; i++) {
+                System.out.print("Enter URL " + (i + 1) + ": ");
+                urls.add(scanner.nextLine().trim());
+            }
+        } else {
+            System.out.print("Enter search query (e.g., top IT companies in USA): ");
+            String query = scanner.nextLine().trim();
+            urls =Scraper.fetchCompanyUrls(query);
+
+            if (urls.isEmpty()) {
+                System.out.println("No company URLs found for the given query.");
+                return;
+            }
         }
 
         List<Map<String, String>> extractedData = new ArrayList<>();
@@ -48,7 +62,7 @@ public class WebScraper {
         Map<String, String> companyInfo = new LinkedHashMap<>();
         Document document = Jsoup.connect(url).get();
 
-        companyInfo.put("Company Name", sanitizeText(document.title()));
+        companyInfo.put("Company Name", document.title());
         companyInfo.put("Company Description", extractMetaDescription(document));
         companyInfo.put("Email", extractEmail(document));
         companyInfo.put("Phone", extractPhoneNumber(document.text()));
@@ -62,7 +76,7 @@ public class WebScraper {
 
     private static String extractMetaDescription(Document document) {
         Elements metaTags = document.select("meta[name=description]");
-        return metaTags.isEmpty() ? "Not Available" : sanitizeText(metaTags.attr("content"));
+        return metaTags.isEmpty() ? "Not Available" : metaTags.attr("content");
     }
 
     private static String extractEmail(Document document) {
@@ -71,7 +85,7 @@ public class WebScraper {
     }
 
     private static String extractPhoneNumber(String text) {
-        Pattern phonePattern = Pattern.compile("(\\+\\d{1,3}\\s?)?(\\(?\\d{2,4}\\)?[-.\\s]?)?(\\d{3,4}[-.\\s]?\\d{4})");
+        Pattern phonePattern = Pattern.compile("(\\+\\d{1,3}\\s?)?(\\d{3}[-.\\s]?\\d{4})");
         Matcher matcher = phonePattern.matcher(text);
         return matcher.find() ? matcher.group() : "Not Available";
     }
@@ -86,16 +100,8 @@ public class WebScraper {
             writer.append("Company Name,Company Description,Email,Phone,LinkedIn,Twitter,Facebook,Website URL\n");
 
             for (Map<String, String> entry : data) {
-                writer.append(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-                        entry.get("Company Name"), entry.get("Company Description"), entry.get("Email"),
-                        entry.get("Phone"), entry.get("LinkedIn"), entry.get("Twitter"),
-                        entry.get("Facebook"), entry.get("Website URL")));
+                writer.append(String.join(",", entry.values())).append("\n");
             }
         }
     }
-
-    private static String sanitizeText(String text) {
-        return text.replaceAll("[,|]", " ");
-    }
 }
-
