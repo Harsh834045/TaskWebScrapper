@@ -1,9 +1,10 @@
 Web Scraper in Java
-Overview
-This is a simple yet powerful web scraper built with Java and Jsoup to extract company details from multiple websites. The extracted data is saved in a CSV file for easy access and analysis.
-This tool is designed to help users quickly gather company information, including names, descriptions, emails, phone numbers, and social media links.
+
+This is a powerful web scraper built with Java, Jsoup, and Selenium to extract company details from multiple websites. The extracted data is saved in a CSV file for easy access and analysis.
+This tool allows users to either search companies using Selenium (Google Search automation) or directly scrape specific websites using Jsoup. It efficiently gathers company details, including names, descriptions, emails, phone numbers, and social media links.
 
 Features
+-- User-Based Search (Selenium): Users can input a search query, and Selenium will fetch relevant company URLs from Google.
 -- Scrapes multiple URLs at once
 -- Extracts key details, such as:
    Company Name
@@ -27,14 +28,15 @@ Before running the scraper, make sure you have:
 1. Java 17+ installed
 2. IntelliJ IDEA (or any Java IDE)
 3. Jsoup Library (for web scraping)
+4. Selenium & ChromeDriver (for Google search automation)
      
 How to Run
 1️. Compile & Run the Code
-javac -cp ".;jsoup-1.14.3.jar" WebScraper.java  
-java -cp ".;jsoup-1.14.3.jar" WebScraper  
-2️. Enter URLs
---The program will ask how many websites you want to scrape.
---Enter the number and paste each URL one by one.
+javac -cp ".;jsoup-1.14.3.jar;selenium-java.jar;chromedriver.exe" WebScraper.java  
+java -cp ".;jsoup-1.14.3.jar;selenium-java.jar;chromedriver.exe" WebScraper    
+2️. Choose Scraping Mode
+-- Search Mode (Selenium): The program will ask for a search query (e.g., "top IT companies"). Selenium will fetch the top Google results.
+-- Direct Mode (Jsoup): Enter the number of websites you want to scrape and paste each URL one by one.
 3️. Check Extracted Data
 --The data will be saved in a file named company_data.csv in the project folder.
 
@@ -45,6 +47,7 @@ Error Handling & Improvements
 -- Cleans extracted text (removes unwanted symbols for better readability)
 
 Why This Approach?
+-- Selenium + ChromeDriver automates Google Search, helping users find relevant company links.
 -- Jsoup is lightweight and perfect for web scraping in Java.
 -- CSV storage keeps things simple and easy to analyze.
 -- Error handling ensures the scraper doesn’t crash when a website is down.
